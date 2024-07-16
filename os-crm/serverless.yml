@@ -1,0 +1,85 @@
+service: os-crm
+frameworkVersion: '3'
+useDotenv: true
+
+package:
+  exclude:
+    - venv/**
+    - __pycache__/*
+    - node_modules/**
+    - README.md
+    - pytest.ini
+    - conftest.py
+    - .venv
+    - .venv.example
+    - package.json
+    - package-lock.json
+	
+plugins:
+  - serverless-localstack
+  - serverless-wsgi
+  - serverless-python-requirements
+  - serverless-dotenv-plugin
+
+custom:
+  localstack:
+    stages:
+      # list of stages for which the plugin should be enabled
+      - local
+    host: http://localhost  # optional - LocalStack host to connect to
+    edgePort: 4566  # optional - LocalStack edge port to connect to
+    autostart: true  # optional - Start LocalStack in Docker on Serverless deploy
+
+  wsgi:
+    app: config.wsgi.application
+
+  pythonRequirements:
+    fileName: ./requirements.txt
+
+
+provider:
+  name: aws
+  runtime: python3.11
+  profile: default
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:*
+          Resource:
+            - arn:aws:s3:::${env:STATIC_FILES_BUCKET_NAME}
+            - arn:aws:s3:::${env:STATIC_FILES_BUCKET_NAME}/*
+
+functions:
+  api:
+    handler: wsgi_handler.handler
+    events:
+      - http: ANY /
+      - http: ANY /{proxy+}
+
+resources:
+  Resources:
+    StaticFilesBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${env:STATIC_FILES_BUCKET_NAME}
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          BlockPublicPolicy: false
+          IgnorePublicAcls: false
+          RestrictPublicBuckets: false
+
+    StaticFilesBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket:
+          Ref: StaticFilesBucket
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Sid: PublicReadGetObject
+              Action: "s3:GetObject"
+              Effect: Allow
+              Principal: "*"
+              Resource: "arn:aws:s3:::${env:STATIC_FILES_BUCKET_NAME}/*"
