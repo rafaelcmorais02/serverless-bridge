@@ -1,19 +1,15 @@
-service: os-crm
+service: django-sls
 frameworkVersion: '3'
 useDotenv: true
 
 package:
   exclude:
-    - venv/**
-    - __pycache__/*
-    - node_modules/**
+    - api/venv/**
+    - api/__pycache__/*
+    - api/node_modules/**
     - README.md
-    - pytest.ini
-    - conftest.py
-    - .venv
-    - .venv.example
-    - package.json
-    - package-lock.json
+    - api/package.json
+    - api/package-lock.json
 	
 plugins:
   - serverless-localstack
@@ -26,21 +22,17 @@ custom:
     stages:
       # list of stages for which the plugin should be enabled
       - local
-    host: http://localhost  # optional - LocalStack host to connect to
     edgePort: 4566  # optional - LocalStack edge port to connect to
-    autostart: true  # optional - Start LocalStack in Docker on Serverless deploy
 
   wsgi:
-    app: config.wsgi.application
+    app: api.config.wsgi.application
 
   pythonRequirements:
-    fileName: ./requirements.txt
-
+    fileName: ./api/requirements.txt
 
 provider:
   name: aws
   runtime: python3.11
-  profile: default
   iam:
     role:
       statements:
@@ -55,8 +47,12 @@ functions:
   api:
     handler: wsgi_handler.handler
     events:
-      - http: ANY /
-      - http: ANY /{proxy+}
+    - http:
+        path: /
+        method: ANY
+    - http:
+        path: /{proxy+}
+        method: ANY
 
 resources:
   Resources:
