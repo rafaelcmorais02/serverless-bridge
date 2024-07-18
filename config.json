@@ -1,0 +1,23 @@
+{
+    "project_name": "django-sls",
+    "stages": {
+        "local": {
+            "name": "local",
+            "region": "sa-east-1",
+            "includeLayers": false,
+            "layer": "AWS::NoValue"
+        },
+        "prd": {
+            "name": "production",
+            "region": "sa-east-1",
+            "includeLayers": true,
+            "layer": "PythonRequirementsLambdaLayer"
+        },
+        "stg": {
+            "name": "staging",
+            "region": "sa-east-1",
+            "includeLayers": true,
+            "layer": "PythonRequirementsLambdaLayer"
+        }
+    }
+}
