@@ -18,6 +18,25 @@ services:
     networks:
       - bridge_network
 
+  api:
+    container_name: api
+    build:
+      context: ../../
+      dockerfile: ./build/docker/Dockerfile
+    env_file:
+      - ../../local/.env
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.docker
+    depends_on:
+      - postgres_db
+    volumes:
+      - ../../api:/usr/src
+    ports:
+      - "8000:8000"
+      - "6000:6000"
+    networks:
+      - bridge_network
+
   postgres_db:
     image: postgres
     environment:

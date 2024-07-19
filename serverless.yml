@@ -5,10 +5,10 @@ package:
   exclude:
     - api/venv/**
     - api/__pycache__/*
-    - api/node_modules/**
+    - node_modules/**
     - README.md
-    - api/package.json
-    - api/package-lock.json
+    - package.json
+    - package-lock.json
 	
 plugins:
   - serverless-localstack
@@ -26,7 +26,7 @@ custom:
     app: api.config.wsgi.application
 
   pythonRequirements:
-    fileName: ./api/requirements.txt
+    fileName: ./build/pip/requirements/compiled/${file(config.json):stages.${opt:stage, 'local'}.requirements}
     layer: ${file(config.json):stages.${opt:stage, 'local'}.includeLayers}
   
 provider:
@@ -71,6 +71,7 @@ functions:
       POSTGRES_PASSWORD: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-POSTGRES_PASSWORD}
       POSTGRES_HOST: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-POSTGRES_HOST}
       POSTGRES_PORT: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-POSTGRES_PORT}
+      DJANGO_SETTINGS_MODULE: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-DJANGO_SETTINGS_MODULE}
 
 
 resources:

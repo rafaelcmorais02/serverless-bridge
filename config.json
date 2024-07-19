@@ -5,19 +5,22 @@
             "name": "local",
             "region": "sa-east-1",
             "includeLayers": false,
-            "layer": "AWS::NoValue"
+            "layer": "AWS::NoValue",
+            "requirements": "local-requirements.txt"
         },
         "prd": {
             "name": "production",
             "region": "sa-east-1",
             "includeLayers": true,
-            "layer": "PythonRequirementsLambdaLayer"
+            "layer": "PythonRequirementsLambdaLayer",
+            "requirements": "prd-requirements.txt"
         },
         "stg": {
             "name": "staging",
             "region": "sa-east-1",
             "includeLayers": true,
-            "layer": "PythonRequirementsLambdaLayer"
+            "layer": "PythonRequirementsLambdaLayer",
+            "requirements": "stg-requirements.txt"
         }
     }
 }

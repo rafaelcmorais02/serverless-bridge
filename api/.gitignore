@@ -1,0 +1,10 @@
+# python/Django env/build files
+venv
+__pycache__
+*.pyc
+*.pyo
+*.log
+*.pot
+db.sqlite3
+media
+

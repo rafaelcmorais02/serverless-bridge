@@ -14,6 +14,6 @@ from django.core.wsgi import get_wsgi_application
 
 sys.path.append('api')
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.docker")
 
 application = get_wsgi_application()
