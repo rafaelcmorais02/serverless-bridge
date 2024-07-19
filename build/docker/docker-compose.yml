@@ -1,6 +1,18 @@
 version: "3.8"
 
 services:
+  local_setup:
+    build:
+      context: ../../
+      dockerfile: ./build/docker/Dockerfile
+      target: local_setup
+    depends_on:
+      - localstack
+    networks:
+      - bridge_network
+    command: [python, ./app/local/load_variables.py]
+
+
   localstack:
     container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
     image: localstack/localstack:latest
@@ -23,12 +35,14 @@ services:
     build:
       context: ../../
       dockerfile: ./build/docker/Dockerfile
+      target: api
     env_file:
       - ../../local/.env
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.docker
     depends_on:
       - postgres_db
+      - local_setup
     volumes:
       - ../../api:/usr/src
     ports:

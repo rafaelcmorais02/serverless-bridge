@@ -4,13 +4,14 @@ import os
 
 config_file_name = 'config.json'
 dot_env_file_name = '.env' 
-json_env_file_name = 'env.json'
+json_env_file_name = 'local_env.json'
 stage = 'local'
 
 config_file_path = os.path.join(os.path.dirname(__file__), '..', config_file_name)
+local_env_path = os.path.join(os.path.dirname(__file__), json_env_file_name)
 
 config_data = json.load(open(config_file_path, 'r'))
-env_data: dict = json.load(open(json_env_file_name, 'r'))
+env_data: dict = json.load(open(local_env_path, 'r'))
 
 aws_region = config_data['stages'][stage]['region']
 aws_access_key_id = 'test_id'
@@ -23,7 +24,7 @@ session = boto3.Session(
     aws_secret_access_key=aws_secret_access_key
 )
 
-ssm_client = session.client('ssm', endpoint_url='http://localhost:4566')
+ssm_client = session.client('ssm', endpoint_url='http://localstack:4566')
 
 for key, value in env_data.items():
     ssm_client.put_parameter(
@@ -33,7 +34,4 @@ for key, value in env_data.items():
         Overwrite=True
     )
 
-env_file = open(dot_env_file_name, 'w')
-for key, value in env_data.items():
-    env_file.write(f"{key}={value}\n")
-    
+print('All variables loaded successfully')
