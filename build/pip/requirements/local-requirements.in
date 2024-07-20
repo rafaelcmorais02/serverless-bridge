@@ -1,1 +1,2 @@
 -r requirements.in
+isort==5.13.2

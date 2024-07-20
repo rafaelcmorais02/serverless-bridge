@@ -1,9 +1,10 @@
 import os
+
 from config.settings.base import *
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['idwe871wkd.execute-api.sa-east-1.amazonaws.com']
+ALLOWED_HOSTS = ['xdedmud0ka.execute-api.sa-east-1.amazonaws.com']
 
 STORAGES = {
     "default": {

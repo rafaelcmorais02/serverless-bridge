@@ -1,26 +1,40 @@
 service: ${file(config.json):project_name}
-frameworkVersion: '3'
+frameworkVersion: "3"
 
 package:
   exclude:
     - api/venv/**
     - api/__pycache__/*
+    - client/**
     - node_modules/**
     - README.md
     - package.json
     - package-lock.json
-	
+
 plugins:
   - serverless-localstack
   - serverless-wsgi
   - serverless-python-requirements
+  - serverless-s3-deploy
 
 custom:
+  assets:
+    auto: false
+    targets:
+      - bucket:
+          Ref: DistBucket
+        acl: public-read
+        files:
+          - source: client/dist/${opt:stage, 'stg'}/
+            headers:
+              CacheControl: max-age=31104000 # 1 year
+            globs:
+              - "**/*"
   localstack:
     stages:
       # list of stages for which the plugin should be enabled
       - local
-    edgePort: 4566  # optional - LocalStack edge port to connect to
+    edgePort: 4566 # optional - LocalStack edge port to connect to
 
   wsgi:
     app: api.config.wsgi.application
@@ -28,13 +42,14 @@ custom:
   pythonRequirements:
     fileName: ./build/pip/requirements/compiled/${file(config.json):stages.${opt:stage, 'local'}.requirements}
     layer: ${file(config.json):stages.${opt:stage, 'local'}.includeLayers}
-  
+
 provider:
   name: aws
+  timeout: 30
   runtime: python3.11
   stage: ${opt:stage, 'local'}
   region: ${file(config.json):stages.${opt:stage, 'local'}.region}
-  environment: 
+  environment:
     STATIC_FILES_BUCKET_NAME: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-STATIC_FILES_BUCKET_NAME}
     AWS_REGION_NAME: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-AWS_REGION_NAME}
   iam:
@@ -51,7 +66,7 @@ provider:
           Action:
             - ssm:GetParameter
             - ssm:PutParameter
-          Resource: 'arn:aws:ssm:*:*:*' 
+          Resource: "arn:aws:ssm:*:*:*"
 
 functions:
   api:
@@ -59,13 +74,15 @@ functions:
     layers:
       - Ref: ${file(config.json):stages.${opt:stage, 'local'}.layer}
     events:
-    - http:
-        path: /
-        method: ANY
-    - http:
-        path: /{proxy+}
-        method: ANY
-    environment: 
+      - http:
+          path: /
+          method: ANY
+          cors: true
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors: true
+    environment:
       POSTGRES_DB: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-POSTGRES_DB}
       POSTGRES_USER: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-POSTGRES_USER}
       POSTGRES_PASSWORD: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-POSTGRES_PASSWORD}
@@ -73,7 +90,6 @@ functions:
       POSTGRES_PORT: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-POSTGRES_PORT}
       DJANGO_SETTINGS_MODULE: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-DJANGO_SETTINGS_MODULE}
       SECRET_KEY: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-SECRET_KEY}
-
 
 resources:
   Resources:
@@ -93,10 +109,47 @@ resources:
         Bucket:
           Ref: StaticFilesBucket
         PolicyDocument:
-          Version: "2012-10-17"
           Statement:
             - Sid: PublicReadGetObject
               Action: "s3:GetObject"
               Effect: Allow
               Principal: "*"
               Resource: "arn:aws:s3:::${self:provider.environment.STATIC_FILES_BUCKET_NAME}/*"
+
+    DistBucket:
+      Type: AWS::S3::Bucket
+      DeletionPolicy: Delete
+      Properties:
+        BucketName: dist-${opt:stage, 'local'}
+        WebsiteConfiguration:
+          IndexDocument: index.html
+        OwnershipControls:
+          Rules:
+            - ObjectOwnership: ObjectWriter
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          BlockPublicPolicy: false
+          IgnorePublicAcls: false
+          RestrictPublicBuckets: false
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - "GET"
+              AllowedOrigins:
+                - "*"
+              MaxAge: 3000
+
+    DistBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket:
+          Ref: DistBucket
+        PolicyDocument:
+          Statement:
+            - Sid: PublicReadGetObject
+              Action: "s3:GetObject"
+              Effect: Allow
+              Principal: "*"
+              Resource: "arn:aws:s3:::dist-${opt:stage, 'local'}/*"

@@ -1,11 +1,11 @@
 #!/bin/bash
 DOCKERFILE_PATH="./build/docker/docker-compose.yml"
-AWS_PROFILE="django-sls"
+AWS_PROFILE="sls-bridge"
 REQUIREMENTSIN_PATH="./build/pip/requirements"
 DOT_ENV_PATH="./build/docker/.env"
 JSON_ENV_PATH="./local/local_env.json"
 
-if [ $1 == "init" ]; then
+if [ $1 == "start" ]; then
     touch "$DOT_ENV_PATH"
 
     if [ ! -f "$JSON_ENV_PATH" ]; then
@@ -25,22 +25,16 @@ if [ $1 == "init" ]; then
     echo "Contents of .env file:"
     cat "$DOT_ENV_PATH"
 
-    docker compose --file "$DOCKERFILE_PATH" up -d --build
+    docker compose --file "$DOCKERFILE_PATH" up -d --force-recreate
     if [ $? -eq 0 ]; then
-        sleep 3
+        sleep 5
         npx sls deploy -s local --aws-profile $AWS_PROFILE --verbose 
         if [ $? -eq 0 ]; then
             sleep 3
             npx sls wsgi manage --command "collectstatic --noinput" -s local --aws-profile $AWS_PROFILE
         fi
     fi
-elif [ $1 == "run" ]; then
-    docker compose --file "$DOCKERFILE_PATH" up -d
-    if [ $? -eq 0 ]; then
-        sleep 3
-        npx sls deploy -s local --aws-profile $AWS_PROFILE --verbose 
-    fi
-elif [ $1 == "down" ]; then
+elif [ $1 == "stop" ]; then
     docker compose --file "$DOCKERFILE_PATH" down
 elif [ $1 == "prune" ]; then
     docker compose --file "$DOCKERFILE_PATH" down -v

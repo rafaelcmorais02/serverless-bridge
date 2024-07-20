@@ -15,7 +15,7 @@ env_data: dict = json.load(open(local_env_path, 'r'))
 aws_region = config_data['stages'][stage]['region']
 aws_access_key_id = 'test_id'
 aws_secret_access_key = 'test_secret'
-project_name = config_data['project_name'] 
+project_name = config_data['project_name']
 
 session = boto3.Session(
     region_name=aws_region,
@@ -29,7 +29,7 @@ for key, value in env_data.items():
     ssm_client.put_parameter(
         Name=f'{project_name}-{stage}-{key}',
         Value=value,
-        Type='String',  
+        Type='String',
         Overwrite=True
     )
 
