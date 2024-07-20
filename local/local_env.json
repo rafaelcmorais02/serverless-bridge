@@ -6,5 +6,6 @@
     "POSTGRES_PASSWORD": "password",
     "POSTGRES_HOST": "postgres_db",
     "POSTGRES_PORT": "5432",
-    "DJANGO_SETTINGS_MODULE": "config.settings.local"
+    "DJANGO_SETTINGS_MODULE": "config.settings.local",
+    "SECRET_KEY": "0f6pje1-=u!s$yn*t%y!t^6c2&q_*luvea1luhtcv5a@gu-unv"
 }

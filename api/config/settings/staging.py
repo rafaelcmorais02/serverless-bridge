@@ -3,7 +3,7 @@ from config.settings.base import *
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['idwe871wkd.execute-api.sa-east-1.amazonaws.com']
 
 STORAGES = {
     "default": {

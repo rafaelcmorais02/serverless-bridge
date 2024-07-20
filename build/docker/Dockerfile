@@ -26,5 +26,4 @@ WORKDIR /app
 
 RUN pip install boto3==1.33.9
 
-COPY ./local/ ./app/local
-COPY config.json ./app
+COPY ./local/local_env.json ./build/docker/load_variables.py config.json ./app/

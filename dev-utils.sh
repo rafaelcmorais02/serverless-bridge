@@ -2,7 +2,7 @@
 DOCKERFILE_PATH="./build/docker/docker-compose.yml"
 AWS_PROFILE="django-sls"
 REQUIREMENTSIN_PATH="./build/pip/requirements"
-DOT_ENV_PATH="./local/.env"
+DOT_ENV_PATH="./build/docker/.env"
 JSON_ENV_PATH="./local/local_env.json"
 
 if [ $1 == "init" ]; then

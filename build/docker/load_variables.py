@@ -3,11 +3,10 @@ import json
 import os
 
 config_file_name = 'config.json'
-dot_env_file_name = '.env' 
 json_env_file_name = 'local_env.json'
 stage = 'local'
 
-config_file_path = os.path.join(os.path.dirname(__file__), '..', config_file_name)
+config_file_path = os.path.join(os.path.dirname(__file__), config_file_name)
 local_env_path = os.path.join(os.path.dirname(__file__), json_env_file_name)
 
 config_data = json.load(open(config_file_path, 'r'))
@@ -28,7 +27,7 @@ ssm_client = session.client('ssm', endpoint_url='http://localstack:4566')
 
 for key, value in env_data.items():
     ssm_client.put_parameter(
-        Name=f'{project_name}-local-{key}',
+        Name=f'{project_name}-{stage}-{key}',
         Value=value,
         Type='String',  
         Overwrite=True

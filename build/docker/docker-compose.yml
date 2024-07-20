@@ -10,7 +10,7 @@ services:
       - localstack
     networks:
       - bridge_network
-    command: [python, ./app/local/load_variables.py]
+    command: [python, ./app/load_variables.py]
 
 
   localstack:
@@ -37,7 +37,7 @@ services:
       dockerfile: ./build/docker/Dockerfile
       target: api
     env_file:
-      - ../../local/.env
+      - ./.env
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.docker
     depends_on:
