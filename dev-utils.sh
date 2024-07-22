@@ -1,7 +1,7 @@
 #!/bin/bash
 DOCKERFILE_PATH="./build/docker/docker-compose.yml"
 AWS_PROFILE="sls-bridge"
-REQUIREMENTSIN_PATH="./build/pip/requirements"
+REQUIREMENTSIN_PATH="./api/config/requirements"
 DOT_ENV_PATH="./build/docker/.env"
 JSON_ENV_PATH="./api/local/local_env.json"
 
@@ -25,7 +25,7 @@ if [ $1 == "start" ]; then
     echo "Contents of .env file:"
     cat "$DOT_ENV_PATH"
 
-    docker compose --file "$DOCKERFILE_PATH" up -d --force-recreate
+    docker compose --file "$DOCKERFILE_PATH" up -d --build
     if [ $? -eq 0 ]; then
         sleep 5
         npx sls deploy -s local --aws-profile $AWS_PROFILE --verbose 

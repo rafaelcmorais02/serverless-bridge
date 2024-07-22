@@ -17,6 +17,11 @@ class Api {
         const response = await this.apiRequest.get<T>('test/');
         return response.data;
     }
+
+    public async postTest<T>(data: string): Promise<T> {
+        const response = await this.apiRequest.post<T>('test/', { data });
+        return response.data;
+    }
 }
 
 export default Api;

@@ -4,7 +4,7 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /usr/src
 
-COPY ./build/pip/requirements/compiled/ ../requirements/compiled/
+COPY ./api/config/requirements/compiled/ ../requirements/compiled/
 RUN pip install --disable-pip-version-check --no-cache-dir --no-compile \
     -r ../requirements/compiled/local-requirements.txt
 
@@ -26,4 +26,4 @@ WORKDIR /app
 
 RUN pip install boto3==1.33.9
 
-COPY .api/local/local_env.json ./build/docker/load_variables.py config.json ./app/
+COPY ./api/local/local_env.json ./build/docker/load_variables.py config.json ./app/

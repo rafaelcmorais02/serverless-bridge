@@ -3,6 +3,9 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+ALLOWED_HOSTS = [host.strip()
+                 for host in os.environ.get("ALLOWED_HOSTS", "").split(",")]
+
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 INSTALLED_APPS = [

@@ -5,8 +5,6 @@ from config.settings.base import *
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['idwe871wkd.execute-api.sa-east-1.amazonaws.com']
-
 STORAGES = {
     "default": {
         "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
