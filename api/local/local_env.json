@@ -1,6 +1,5 @@
 {
   "STATIC_FILES_BUCKET_NAME": "static-files-local",
-  "AWS_REGION_NAME": "sa-east-1",
   "POSTGRES_DB": "postgres",
   "POSTGRES_USER": "postgres",
   "POSTGRES_PASSWORD": "password",

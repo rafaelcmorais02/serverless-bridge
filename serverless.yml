@@ -18,6 +18,14 @@ plugins:
   - serverless-s3-deploy
 
 custom:
+  buckets:
+    staticFiles:
+      name: static-files-${opt:stage, 'local'}
+      region: sa-east-1
+    dist:
+      name: dist-${opt:stage, 'local'}
+      region: sa-east-1
+
   assets:
     auto: false
     targets:
@@ -25,7 +33,7 @@ custom:
           Ref: DistBucket
         acl: public-read
         files:
-          - source: client/dist/${opt:stage, 'stg'}/
+          - source: client/dist/${opt:stage, 'local'}/
             headers:
               CacheControl: max-age=31104000 # 1 year
             globs:
@@ -40,7 +48,7 @@ custom:
     app: api.config.wsgi.application
 
   pythonRequirements:
-    fileName: ./build/pip/requirements/compiled/${file(config.json):stages.${opt:stage, 'local'}.requirements}
+    fileName: ./api/config/requirements/compiled/${file(config.json):stages.${opt:stage, 'local'}.requirements}
     layer: ${file(config.json):stages.${opt:stage, 'local'}.includeLayers}
 
 provider:
@@ -50,8 +58,8 @@ provider:
   stage: ${opt:stage, 'local'}
   region: ${file(config.json):stages.${opt:stage, 'local'}.region}
   environment:
-    STATIC_FILES_BUCKET_NAME: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-STATIC_FILES_BUCKET_NAME}
-    AWS_REGION_NAME: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-AWS_REGION_NAME}
+    STATIC_FILES_BUCKET_NAME: ${self:custom.buckets.staticFiles.name}
+    STATIC_FILES_BUCKET_REGION: ${self:custom.buckets.staticFiles.region}
   iam:
     role:
       statements:
@@ -59,8 +67,8 @@ provider:
           Action:
             - s3:*
           Resource:
-            - arn:aws:s3:::${self:provider.environment.STATIC_FILES_BUCKET_NAME}
-            - arn:aws:s3:::${self:provider.environment.STATIC_FILES_BUCKET_NAME}/*
+            - arn:aws:s3:::${self:custom.buckets.staticFiles.name}
+            - arn:aws:s3:::${self:custom.buckets.staticFiles.name}/*
 
         - Effect: Allow
           Action:
@@ -96,7 +104,7 @@ resources:
     StaticFilesBucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: ${self:provider.environment.STATIC_FILES_BUCKET_NAME}
+        BucketName: ${self:custom.buckets.staticFiles.name}
         PublicAccessBlockConfiguration:
           BlockPublicAcls: false
           BlockPublicPolicy: false
@@ -114,13 +122,13 @@ resources:
               Action: "s3:GetObject"
               Effect: Allow
               Principal: "*"
-              Resource: "arn:aws:s3:::${self:provider.environment.STATIC_FILES_BUCKET_NAME}/*"
+              Resource: "arn:aws:s3:::${self:custom.buckets.staticFiles.name}/*"
 
     DistBucket:
       Type: AWS::S3::Bucket
       DeletionPolicy: Delete
       Properties:
-        BucketName: dist-${opt:stage, 'local'}
+        BucketName: ${self:custom.buckets.dist.name}
         WebsiteConfiguration:
           IndexDocument: index.html
         OwnershipControls:
@@ -152,4 +160,4 @@ resources:
               Action: "s3:GetObject"
               Effect: Allow
               Principal: "*"
-              Resource: "arn:aws:s3:::dist-${opt:stage, 'local'}/*"
+              Resource: "arn:aws:s3:::${self:custom.buckets.dist.name}/*"
