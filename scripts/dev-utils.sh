@@ -1,8 +1,8 @@
 #!/bin/bash
-DOCKERFILE_PATH="./build/docker/docker-compose.yml"
+DOCKERFILE_PATH="./docker/docker-compose.yml"
 AWS_PROFILE="sls-bridge"
 REQUIREMENTSIN_PATH="./api/config/requirements"
-DOT_ENV_PATH="./build/docker/.env"
+DOT_ENV_PATH="./docker/.env"
 JSON_ENV_PATH="./api/local/local_env.json"
 
 if [ $1 == "start" ]; then

@@ -1,4 +1,4 @@
-service: ${file(config.json):project_name}
+service: ${self:custom.deployConfig.projectName}
 frameworkVersion: "3"
 
 package:
@@ -18,6 +18,27 @@ plugins:
   - serverless-s3-deploy
 
 custom:
+  deployConfig:
+    projectName: ${file(deploy-config.json):projectName}
+    timeout: ${file(deploy-config.json):timeout}
+    memorySize: ${file(deploy-config.json):memorySize}
+    stages:
+      local:
+        region: ${file(deploy-config.json):stages.local.region}
+        includeLayers: false
+        layer: AWS::NoValue
+        requirements: local-requirements.txt
+      prd:
+        region: ${file(deploy-config.json):stages.prd.region}
+        includeLayers: true
+        layer: PythonRequirementsLambdaLayer
+        requirements: prd-requirements.txt
+      stg:
+        region: ${file(deploy-config.json):stages.stg.region}
+        includeLayers: true
+        layer: PythonRequirementsLambdaLayer
+        requirements: stg-requirements.txt
+
   buckets:
     staticFiles:
       name: static-files-${opt:stage, 'local'}
@@ -48,15 +69,16 @@ custom:
     app: api.config.wsgi.application
 
   pythonRequirements:
-    fileName: ./api/config/requirements/compiled/${file(config.json):stages.${opt:stage, 'local'}.requirements}
-    layer: ${file(config.json):stages.${opt:stage, 'local'}.includeLayers}
+    fileName: ./api/config/requirements/compiled/${self:custom.deployConfig.stages.${opt:stage, 'local'}.requirements}
+    layer: ${self:custom.deployConfig.stages.${opt:stage, 'local'}.includeLayers}
 
 provider:
   name: aws
-  timeout: 30
+  timeout: ${self:custom.deployConfig.timeout}
+  memorySize: ${self:custom.deployConfig.memorySize}
   runtime: python3.11
   stage: ${opt:stage, 'local'}
-  region: ${file(config.json):stages.${opt:stage, 'local'}.region}
+  region: ${self:custom.deployConfig.stages.${opt:stage, 'local'}.region}
   environment:
     STATIC_FILES_BUCKET_NAME: ${self:custom.buckets.staticFiles.name}
     STATIC_FILES_BUCKET_REGION: ${self:custom.buckets.staticFiles.region}

@@ -3,8 +3,8 @@ version: "3.8"
 services:
   local_setup:
     build:
-      context: ../../
-      dockerfile: ./build/docker/Dockerfile
+      context: ../
+      dockerfile: ./docker/Dockerfile
       target: local_setup
     depends_on:
       - localstack
@@ -33,8 +33,8 @@ services:
   api:
     container_name: api
     build:
-      context: ../../
-      dockerfile: ./build/docker/Dockerfile
+      context: ../
+      dockerfile: ./docker/Dockerfile
       target: api
     env_file:
       - ./.env
@@ -44,7 +44,7 @@ services:
       - postgres_db
       - local_setup
     volumes:
-      - ../../api:/usr/src
+      - ../api:/usr/src
     ports:
       - "8000:8000"
       - "6000:6000"

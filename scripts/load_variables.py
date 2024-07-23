@@ -2,20 +2,21 @@ import boto3
 import json
 import os
 
-config_file_name = 'config.json'
-json_env_file_name = 'local_env.json'
-stage = 'local'
+DEPLOY_CONFIG_FILE_NAME = 'deploy-config.json'
+JSON_ENV_FILE_NAME = 'local_env.json'
+STAGE = 'local'
 
-config_file_path = os.path.join(os.path.dirname(__file__), config_file_name)
-local_env_path = os.path.join(os.path.dirname(__file__), json_env_file_name)
+deploy_config_file_path = os.path.join(
+    os.path.dirname(__file__), DEPLOY_CONFIG_FILE_NAME)
+local_env_path = os.path.join(os.path.dirname(__file__), JSON_ENV_FILE_NAME)
 
-config_data = json.load(open(config_file_path, 'r'))
+deploy_config_data = json.load(open(deploy_config_file_path, 'r'))
 env_data: dict = json.load(open(local_env_path, 'r'))
 
-aws_region = config_data['stages'][stage]['region']
+aws_region = deploy_config_data['stages'][STAGE]['region']
 aws_access_key_id = 'test_id'
 aws_secret_access_key = 'test_secret'
-project_name = config_data['project_name']
+project_name = deploy_config_data['projectName']
 
 session = boto3.Session(
     region_name=aws_region,
@@ -27,7 +28,7 @@ ssm_client = session.client('ssm', endpoint_url='http://localstack:4566')
 
 for key, value in env_data.items():
     ssm_client.put_parameter(
-        Name=f'{project_name}-{stage}-{key}',
+        Name=f'{project_name}-{STAGE}-{key}',
         Value=value,
         Type='String',
         Overwrite=True

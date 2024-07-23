@@ -1,98 +1,174 @@
-<!--
-title: 'AWS Simple HTTP Endpoint example in Python'
-description: 'This template demonstrates how to make a simple HTTP API with Python running on AWS Lambda and API Gateway using the Serverless Framework.'
-layout: Doc
-framework: v4
-platform: AWS
-language: python
-authorLink: 'https://github.com/serverless'
-authorName: 'Serverless, Inc.'
-authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
--->
+# Projeto Serverless para Criação de Serviços Full Stack na AWS: APIs com DRF e SPA com React
 
-# Serverless Framework Python HTTP API on AWS
+Este monorepo é uma solução completa para desenvolvimento full stack, integrando uma API back-end em Django (DRF) com uma aplicação front-end SPA em React. A aplicação Django está configurada para implantação no AWS Lambda, utilizando LocalStack para testes locais de deployment. Além disso, está preparada para execução em contêineres Docker, facilitando o desenvolvimento local, dando suporte à ferramenta de debug do VSCode. O projeto também inclui um ambiente robusto para desenvolvimento front-end e suporte para publicação da SPA usando o AWS S3.
 
-This template demonstrates how to make a simple HTTP API with Python running on AWS Lambda and API Gateway using the Serverless Framework.
+## Requisitos Mínimos
 
-This template does not include any kind of persistence (database). For more advanced examples, check out the [serverless/examples repository](https://github.com/serverless/examples/) which includes DynamoDB, Mongo, Fauna and other examples.
+- **Node.js** (versão 20 ou superior)
+- **Docker** (versão 27 ou superior)
+- **Docker Compose** (versão 2)
+- **Python** (versão 3.11 ou superior)
+- **pip-tools** (versão 7 ou superior)
+- **AWS CLI** (guia de instalação: https://docs.aws.amazon.com/pt_br/cli/v1/userguide/install-linux.html)
 
-## Usage
+\*Obs¹: Todos os procedimentos descritos abaixo assumem SO Linux.
 
-### Deployment
+## Instalação
 
-```
-serverless deploy
-```
+1. **Clone o Repositório**
 
-After deploying, you should see output similar to:
+   ```bash
+   git clone https://github.com/rafaelcmorais02/serverless-bridge.git
+   cd serverless-bridge
+   ```
 
-```
-Deploying "aws-python-http-api" to stage "dev" (us-east-1)
+2. **Instale Dependências Node.js**
 
-✔ Service deployed to stack aws-python-http-api-dev (85s)
+   Navegue até a pasta raiz do projeto e execute:
 
-endpoint: GET - https://6ewcye3q4d.execute-api.us-east-1.amazonaws.com/
-functions:
-  hello: aws-python-http-api-dev-hello (2.3 kB)
-```
+   ```bash
+   npm install
+   ```
 
-_Note_: In current form, after deployment, your API is public and can be invoked by anyone. For production deployments, you might want to configure an authorizer. For details on how to do that, refer to [http event docs](https://www.serverless.com/framework/docs/providers/aws/events/apigateway/).
+   Repita o mesmo procedimento dentro da pasta `client`
 
-### Invocation
+   ```bash
+   cd client
+   npm install
+   ```
 
-After successful deployment, you can call the created application via HTTP:
+3. **Prepare o Ambiente Docker**
 
-```
-curl https://xxxxxxx.execute-api.us-east-1.amazonaws.com/
-```
+   Crie e configure os arquivos necessários:
 
-Which should result in response similar to the following (removed `input` content for brevity):
+   ```bash
+   npm run compile
+   ```
 
-```json
-{
-  "message": "Go Serverless v4.0! Your function executed successfully!"
-}
-```
+   \*Obs¹: Lembre-se antes de instalar o módulo pip-tools
 
-### Local development
+   ```bash
+   pip install pip-tools
+   ```
 
-You can invoke your function locally by using the following command:
+4. **Certifique-se de que você tenha um perfil AWS configurado**
 
-```
-serverless invoke local --function hello
-```
+   Como esse projeto Serverless utiliza o provedor AWS, é necessário ter uma conta e ter configurado suas credenciais. Utilize o alias `sls-bridge` para seu perfil, que pode ser alterado no seguinte diretório: ~/.aws/config
+   \*Obs¹: Caso o alias seja diferente de `sls-bridge`, a variável `AWS_PROFILE` deve ser alterada dentro de ./scripts/dev-utils.sh
 
-Which should result in response similar to the following:
+5. **Inicie os Serviços**
 
-```json
-{
-  "statusCode": 200,
-  "body": "{\n  \"message\": \"Go Serverless v4.0! Your function executed successfully!\"}"
-}
-```
+   Para iniciar o ambiente de desenvolvimento, execute:
 
-Alternatively, it is also possible to emulate API Gateway and Lambda locally by using `serverless-offline` plugin. In order to do that, execute the following command:
+   ```bash
+   npm run start
+   ```
 
-```
-serverless plugin install -n serverless-offline
+   Isso iniciará os containers Docker para LocalStack, Django e PostgreSQL.
+
+## Desenvolvimento Back-End
+
+Para trabalhar no back-end, navegue até a pasta `api`. Lá você encontrará a pasta `local` com o arquivo `local_env.json`. Qualquer nova variável de ambiente de desenvolvimento deve ser adicionada no mesmo JSON. Para o deploy no `localstack` a mesma propriedade deve ser incluída em `environment` do arquivo `serverless.functions`. O comando
+
+```bash
+npm run start
 ```
 
-It will add the `serverless-offline` plugin to `devDependencies` in `package.json` file as well as will add it to `plugins` in `serverless.yml`.
+irá adicionar essas variáveis tanto no container da aplicação Django quanto na lambda wsgi dentro do `localstack`
 
-After installation, you can start local emulation with:
+## Desenvolvimento Front-End
 
-```
-serverless offline
-```
+Para trabalhar no front-end, navegue até a pasta `client` e siga as instruções no `package.json` para iniciar o servidor de desenvolvimento.
 
-To learn more about the capabilities of `serverless-offline`, please refer to its [GitHub repository](https://github.com/dherault/serverless-offline).
-
-### Bundling dependencies
-
-In case you would like to include 3rd party dependencies, you will need to use a plugin called `serverless-python-requirements`. You can set it up by running the following command:
-
-```
-serverless plugin install -n serverless-python-requirements
+```bash
+cd client
+npm run dev
 ```
 
-Running the above will automatically add `serverless-python-requirements` to `plugins` section in your `serverless.yml` file and add it as a `devDependency` to `package.json` file. The `package.json` file will be automatically created if it doesn't exist beforehand. Now you will be able to add your dependencies to `requirements.txt` file (`Pipfile` and `pyproject.toml` is also supported but requires additional configuration) and they will be automatically injected to Lambda package during build process. For more details about the plugin's configuration, please refer to [official documentation](https://github.com/UnitedIncome/serverless-python-requirements).
+Qualquer variável de desenvolvimento do projeto deve ser adicionada dentro do arquivo `.env.development.local` dentro da pasta `local`, e precisa ter o prefixo `VITE_`.
+
+## Deploy do Back-End
+
+Ambientes para deploy <-s>
+
+- **staging** (stg)
+- **produção** (prd)
+
+1.  **Adicione as variáveis de ambiente**
+
+    todas as variáveis de ambiente dentro de `api/local/local_env.json` precisarão ser adicionadas do `repositório de parâmetros` da aws com seus respectivos valores atualizados. O nome deve seguir o padrão
+
+    ```
+    <nome_do_projeto>-<stage>-<nome_da_variavel>
+    ```
+
+    exemplo:
+
+    ```
+    sls-bridge-stg-POSTGRES_PASSWORD
+    ```
+
+2.  **Configure o deploy**
+
+    as configurações específicas para o deploy do Serverless podem ser ajustadas no arquivo deploy-config.json. Caso esteja satisfeito com os valores padrão, não é necessário fazer alterações neste arquivo.
+
+3.  **Faça o deploy**
+
+    ```bash
+    npx sls deploy -s <stage> --aws-profile <profile> --verbose
+    ```
+
+4.  **Faça a migration**
+
+    ```bash
+    npx sls wsgi manage --command "migrate" -s <stage> --aws-profile <profile> --verbose
+    ```
+
+5.  **Colete os arquivos estáticos**
+
+    ```bash
+    npx sls wsgi manage --command "collectstatic --noinput" -s <stage> --aws-profile <profile> --verbose
+    ```
+
+6.  **Teste a aplicação**
+
+    Agora a aplicação pode ser testada acessando:
+
+    ```
+    https://<api-id>.execute-api.<region>.amazonaws.com/<stage>/admin/
+    ```
+
+## Deploy do Front-End
+
+Ambientes para deploy <-s>
+
+- **staging** (stg)
+- **produção** (prd)
+
+1.  **Adicione as variáveis de ambiente**
+
+    todas as variáveis de ambiente dentro de `.env.development.local` precisarão ser adicionadas nos arquivos `.env.staging.local` e `.env.production.local` com seus respectivos valores atualizados
+
+2.  **Crie um arquivo de build**
+
+    dentro da pasta `client` rode o comando
+
+    ```bash
+    npm run build:<stage>
+    ```
+
+3.  **Faça o deploy**
+
+    na raiz do projeto (onde está o arquivo .serverless.yml) rode o comando
+
+    ```bash
+    npx sls s3deploy -s <stage> --aws-profile <profile> --verbose
+    ```
+
+4.  **Teste a SPA**
+
+    Agora a aplicação pode ser testada acessando:
+
+    ```
+    http://dist-<stage>.s3-website-<region>.amazonaws.com/
+    ```

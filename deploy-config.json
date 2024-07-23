@@ -1,0 +1,16 @@
+{
+  "projectName": "sls-bridge",
+  "timeout": 30,
+  "memorySize": 512,
+  "stages": {
+    "local": {
+      "region": "sa-east-1"
+    },
+    "stg": {
+      "region": "sa-east-1"
+    },
+    "prd": {
+      "region": "sa-east-1"
+    }
+  }
+}

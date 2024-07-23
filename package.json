@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "./scripts/dev-utils.sh start",
+    "stop": "./scripts/dev-utils.sh stop",
+    "prune": "./scripts/dev-utils.sh prune",
+    "compile": "./scripts/dev-utils.sh compile",
+    "migrations": "./scripts/dev-utils.sh migrations"
   },
   "keywords": [],
   "author": "",

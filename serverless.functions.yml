@@ -2,7 +2,7 @@ functions:
   api:
     handler: wsgi_handler.handler
     layers:
-      - Ref: ${file(config.json):stages.${opt:stage, 'local'}.layer}
+      - Ref: ${self:custom.deployConfig.stages.${opt:stage, 'local'}.layer}
     events:
       - http:
           path: /
@@ -13,11 +13,11 @@ functions:
           method: ANY
           cors: true
     environment:
-      POSTGRES_DB: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-POSTGRES_DB}
-      POSTGRES_USER: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-POSTGRES_USER}
-      POSTGRES_PASSWORD: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-POSTGRES_PASSWORD}
-      POSTGRES_HOST: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-POSTGRES_HOST}
-      POSTGRES_PORT: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-POSTGRES_PORT}
-      DJANGO_SETTINGS_MODULE: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-DJANGO_SETTINGS_MODULE}
-      SECRET_KEY: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-SECRET_KEY}
-      ALLOWED_HOSTS: ${ssm(raw):${file(config.json):project_name}-${self:provider.stage}-ALLOWED_HOSTS}
+      POSTGRES_DB: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-POSTGRES_DB}
+      POSTGRES_USER: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-POSTGRES_USER}
+      POSTGRES_PASSWORD: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-POSTGRES_PASSWORD}
+      POSTGRES_HOST: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-POSTGRES_HOST}
+      POSTGRES_PORT: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-POSTGRES_PORT}
+      DJANGO_SETTINGS_MODULE: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-DJANGO_SETTINGS_MODULE}
+      SECRET_KEY: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-SECRET_KEY}
+      ALLOWED_HOSTS: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-ALLOWED_HOSTS}
