@@ -16,14 +16,3 @@ COPY ./api/ ./
 EXPOSE 8000 6000
 
 ENTRYPOINT ["/backend-entrypoint.sh"]
-
-
-FROM python:3.11-alpine as local_setup
-
-ENV PYTHONUNBUFFERED 1
-
-WORKDIR /app
-
-RUN pip install boto3==1.33.9
-
-COPY ./api/local/local_env.json ./scripts/load_variables.py deploy-config.json ./app/

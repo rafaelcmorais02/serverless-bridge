@@ -1,9 +1,10 @@
-import boto3
 import json
 import os
 
-DEPLOY_CONFIG_FILE_NAME = 'deploy-config.json'
-JSON_ENV_FILE_NAME = 'local_env.json'
+import boto3
+
+DEPLOY_CONFIG_FILE_NAME = '../deploy-config.json'
+JSON_ENV_FILE_NAME = '../api/local/local_env.json'
 STAGE = 'local'
 
 deploy_config_file_path = os.path.join(
@@ -24,7 +25,7 @@ session = boto3.Session(
     aws_secret_access_key=aws_secret_access_key
 )
 
-ssm_client = session.client('ssm', endpoint_url='http://localstack:4566')
+ssm_client = session.client('ssm', endpoint_url='http://localhost:4566')
 
 for key, value in env_data.items():
     ssm_client.put_parameter(

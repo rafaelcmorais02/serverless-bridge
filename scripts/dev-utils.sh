@@ -4,7 +4,11 @@ AWS_PROFILE="sls-bridge"
 REQUIREMENTSIN_PATH="./api/config/requirements"
 DOT_ENV_PATH="./docker/.env"
 JSON_ENV_PATH="./api/local/local_env.json"
+LOAD_VARIABLES_SCRIPT="./scripts/load_variables.py"
+LOCALSTACK_SERVICE_NAME="localstack"
+VENV_PATH="./api/venv/bin/activate"
 
+. "$VENV_PATH"
 if [ $1 == "start" ]; then
     touch "$DOT_ENV_PATH"
 
@@ -25,13 +29,19 @@ if [ $1 == "start" ]; then
     echo "Contents of .env file:"
     cat "$DOT_ENV_PATH"
 
-    docker compose --file "$DOCKERFILE_PATH" up -d --build
+    docker compose --file "$DOCKERFILE_PATH" up "$LOCALSTACK_SERVICE_NAME"  -d 
     if [ $? -eq 0 ]; then
-        sleep 5
-        npx sls deploy -s local --aws-profile $AWS_PROFILE --verbose 
+        sleep 3
+        python "$LOAD_VARIABLES_SCRIPT"
         if [ $? -eq 0 ]; then
-            sleep 3
-            npx sls wsgi manage --command "collectstatic --noinput" -s local --aws-profile $AWS_PROFILE
+            docker compose --file "$DOCKERFILE_PATH" up -d --build
+            if [ $? -eq 0 ]; then
+                npx sls deploy -s local --aws-profile $AWS_PROFILE --verbose 
+                if [ $? -eq 0 ]; then
+                    sleep 3
+                    npx sls wsgi manage --command "collectstatic --noinput" -s local --aws-profile $AWS_PROFILE
+                fi
+            fi
         fi
     fi
 elif [ $1 == "stop" ]; then
@@ -41,7 +51,6 @@ elif [ $1 == "prune" ]; then
 elif [ $1 == "migrations" ]; then
     npx sls wsgi manage --command "showmigrations" -s local --aws-profile $AWS_PROFILE
 elif [ $1 == "compile" ]; then
-    . api/venv/bin/activate
     pip-compile "${REQUIREMENTSIN_PATH}/local-requirements.in" --upgrade --strip-extras --no-annotate --generate-hashes --pip-args "--retries 3 --timeout 30" --allow-unsafe --output-file="${REQUIREMENTSIN_PATH}/compiled/local-requirements.txt"
     pip-compile "${REQUIREMENTSIN_PATH}/stg-requirements.in" --upgrade --strip-extras --no-annotate --generate-hashes --pip-args "--retries 3 --timeout 30" --allow-unsafe --output-file="${REQUIREMENTSIN_PATH}/compiled/stg-requirements.txt"
     pip-compile "${REQUIREMENTSIN_PATH}/prd-requirements.in" --upgrade --strip-extras --no-annotate --generate-hashes --pip-args "--retries 3 --timeout 30" --allow-unsafe --output-file="${REQUIREMENTSIN_PATH}/compiled/prd-requirements.txt"

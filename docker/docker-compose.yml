@@ -1,18 +1,6 @@
 version: "3.8"
 
 services:
-  local_setup:
-    build:
-      context: ../
-      dockerfile: ./docker/Dockerfile
-      target: local_setup
-    depends_on:
-      - localstack
-    networks:
-      - bridge_network
-    command: [python, ./app/load_variables.py]
-
-
   localstack:
     container_name: localstack
     image: localstack/localstack:3.5.0-amd64
