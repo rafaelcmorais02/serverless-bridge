@@ -4,8 +4,10 @@ class Api {
     private apiRequest: AxiosInstance;
     constructor() {
         const baseUrl = import.meta.env.VITE_API_BASE_URL;
+        const apiKey = import.meta.env.VITE_API_KEY;
         const headers = {
             'Content-Type': 'application/json',
+            'x-api-key': apiKey,
         };
         this.apiRequest = axios.create({
             baseURL: baseUrl,

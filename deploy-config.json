@@ -4,13 +4,25 @@
   "memorySize": 512,
   "stages": {
     "local": {
-      "region": "sa-east-1"
+      "region": "sa-east-1",
+      "requestLimit": 1000,
+      "requestLimitPeriod": "MONTH",
+      "throttleBurstLimit": 100,
+      "throttleRequestLimit": 50
     },
     "stg": {
-      "region": "sa-east-1"
+      "region": "sa-east-1",
+      "requestLimit": 1000,
+      "requestLimitPeriod": "MONTH",
+      "throttleBurstLimit": 100,
+      "throttleRequestLimit": 50
     },
     "prd": {
-      "region": "sa-east-1"
+      "region": "sa-east-1",
+      "requestLimit": 1000,
+      "requestLimitPeriod": "MONTH",
+      "throttleBurstLimit": 100,
+      "throttleRequestLimit": 50
     }
   }
 }

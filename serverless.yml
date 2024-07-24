@@ -28,16 +28,38 @@ custom:
         includeLayers: false
         layer: AWS::NoValue
         requirements: local-requirements.txt
-      prd:
-        region: ${file(deploy-config.json):stages.prd.region}
-        includeLayers: true
-        layer: PythonRequirementsLambdaLayer
-        requirements: prd-requirements.txt
+        requestLimit: ${file(deploy-config.json):stages.local.requestLimit}
+        requestLimitPeriod: ${file(deploy-config.json):stages.local.requestLimitPeriod}
+        throttleBurstLimit: ${file(deploy-config.json):stages.local.throttleBurstLimit}
+        throttleRequestLimit: ${file(deploy-config.json):stages.local.throttleRequestLimit}
       stg:
         region: ${file(deploy-config.json):stages.stg.region}
         includeLayers: true
         layer: PythonRequirementsLambdaLayer
         requirements: stg-requirements.txt
+        requestLimit: ${file(deploy-config.json):stages.stg.requestLimit}
+        requestLimitPeriod: ${file(deploy-config.json):stages.stg.requestLimitPeriod}
+        throttleBurstLimit: ${file(deploy-config.json):stages.stg.throttleBurstLimit}
+        throttleRequestLimit: ${file(deploy-config.json):stages.stg.throttleRequestLimit}
+      prd:
+        region: ${file(deploy-config.json):stages.prd.region}
+        includeLayers: true
+        layer: PythonRequirementsLambdaLayer
+        requirements: prd-requirements.txt
+        requestLimit: ${file(deploy-config.json):stages.prd.requestLimit}
+        requestLimitPeriod: ${file(deploy-config.json):stages.prd.requestLimitPeriod}
+        throttleBurstLimit: ${file(deploy-config.json):stages.prd.throttleBurstLimit}
+        throttleRequestLimit: ${file(deploy-config.json):stages.prd.throttleRequestLimit}
+
+  ssmParameters:
+    POSTGRES_DB: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-POSTGRES_DB}
+    POSTGRES_USER: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-POSTGRES_USER}
+    POSTGRES_PASSWORD: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-POSTGRES_PASSWORD}
+    POSTGRES_HOST: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-POSTGRES_HOST}
+    POSTGRES_PORT: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-POSTGRES_PORT}
+    DJANGO_SETTINGS_MODULE: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-DJANGO_SETTINGS_MODULE}
+    SECRET_KEY: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-SECRET_KEY}
+    ALLOWED_HOSTS: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-ALLOWED_HOSTS}
 
   buckets:
     staticFiles:
@@ -79,9 +101,16 @@ provider:
   runtime: python3.11
   stage: ${opt:stage, 'local'}
   region: ${self:custom.deployConfig.stages.${opt:stage, 'local'}.region}
-  environment:
-    STATIC_FILES_BUCKET_NAME: ${self:custom.buckets.staticFiles.name}
-    STATIC_FILES_BUCKET_REGION: ${self:custom.buckets.staticFiles.region}
+  apiGateway:
+    apiKeys:
+      - ${opt:stage}-apiKey
+    usagePlan:
+      quota:
+        limit: ${self:custom.deployConfig.stages.${opt:stage, 'local'}.requestLimit}
+        period: ${self:custom.deployConfig.stages.${opt:stage, 'local'}.requestLimitPeriod}
+      throttle:
+        burstLimit: ${self:custom.deployConfig.stages.${opt:stage, 'local'}.throttleBurstLimit}
+        rateLimit: ${self:custom.deployConfig.stages.${opt:stage, 'local'}.throttleRequestLimit}
   iam:
     role:
       statements:

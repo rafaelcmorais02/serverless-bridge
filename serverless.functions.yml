@@ -8,16 +8,21 @@ functions:
           path: /
           method: ANY
           cors: true
+          private: true
       - http:
           path: /{proxy+}
           method: ANY
           cors: true
+          private: true
+
     environment:
-      POSTGRES_DB: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-POSTGRES_DB}
-      POSTGRES_USER: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-POSTGRES_USER}
-      POSTGRES_PASSWORD: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-POSTGRES_PASSWORD}
-      POSTGRES_HOST: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-POSTGRES_HOST}
-      POSTGRES_PORT: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-POSTGRES_PORT}
-      DJANGO_SETTINGS_MODULE: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-DJANGO_SETTINGS_MODULE}
-      SECRET_KEY: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-SECRET_KEY}
-      ALLOWED_HOSTS: ${ssm(raw):${self:custom.deployConfig.projectName}-${self:provider.stage}-ALLOWED_HOSTS}
+      POSTGRES_DB: ${self:custom.ssmParameters.POSTGRES_DB}
+      POSTGRES_USER: ${self:custom.ssmParameters.POSTGRES_USER}
+      POSTGRES_PASSWORD: ${self:custom.ssmParameters.POSTGRES_PASSWORD}
+      POSTGRES_HOST: ${self:custom.ssmParameters.POSTGRES_HOST}
+      POSTGRES_PORT: ${self:custom.ssmParameters.POSTGRES_PORT}
+      DJANGO_SETTINGS_MODULE: ${self:custom.ssmParameters.DJANGO_SETTINGS_MODULE}
+      SECRET_KEY: ${self:custom.ssmParameters.SECRET_KEY}
+      ALLOWED_HOSTS: ${self:custom.ssmParameters.ALLOWED_HOSTS}
+      STATIC_FILES_BUCKET_NAME: ${self:custom.buckets.staticFiles.name}
+      STATIC_FILES_BUCKET_REGION: ${self:custom.buckets.staticFiles.region}
