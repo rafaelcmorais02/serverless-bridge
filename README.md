@@ -1,173 +1,161 @@
-# Projeto Serverless para Criação de Serviços Full Stack na AWS: APIs com DRF e SPA com React
+# Launch Your Ideas Fast: Full Stack Serverless Development on AWS with Django and React
 
-Este monorepo é uma solução completa para desenvolvimento full stack, integrando uma API back-end em Django (DRF) com uma aplicação front-end SPA em React. A aplicação Django está configurada para implantação no AWS Lambda, utilizando LocalStack para testes locais de deployment. Além disso, está preparada para execução em contêineres Docker, facilitando o desenvolvimento local, dando suporte à ferramenta de debug do VSCode. O projeto também inclui um ambiente robusto para desenvolvimento front-end e suporte para publicação da SPA usando o AWS S3.
+This monorepo is designed to quickly transform ideas into production-ready applications, minimizing the inertia that often delays projects from going live. It provides a complete solution for full-stack development, integrating a back-end API in Django (DRF) with a front-end SPA in React. The Django application is configured for deployment on AWS Lambda, using LocalStack for local deployment tests. It is also prepared for running in Docker containers, facilitating local development and supporting VSCode debugging. The project includes a robust environment for front-end development and supports publishing the SPA using AWS S3.
 
-## Requisitos Mínimos
+Our goal is to enable rapid development and deployment, helping you get your ideas off the ground and into production as efficiently as possible.
 
-- **Node.js** (versão 20 ou superior)
-- **Docker** (versão 27 ou superior)
-- **Docker Compose** (versão 2)
-- **Python** (versão 3.11 ou superior)
-- **pip-tools** (versão 7 ou superior)
-- **AWS CLI** (guia de instalação: https://docs.aws.amazon.com/pt_br/cli/v1/userguide/install-linux.html)
+## Minimum Requirements
 
-\*Obs¹: Todos os procedimentos descritos abaixo assumem SO Linux.
+- **Node.js** (version 20 or higher)
+- **Docker** (version 27 or higher)
+- **Docker Compose** (version 2)
+- **Python** (version 3.11 or higher)
+- **pip-tools** (version 7 or higher)
+- **AWS CLI** (for installation instructions, please refer to the [AWS CLI installation guide](https://docs.aws.amazon.com/cli/v1/userguide/install-linux.html))
 
-## Instalação
+\*Note: All procedures below assume a Linux OS.
 
-1. **Clone o Repositório**
+## Installation
+
+1. **Clone the Repository**
 
    ```bash
    git clone https://github.com/rafaelcmorais02/serverless-bridge.git
    cd serverless-bridge
    ```
 
-2. **Instale Dependências Node.js**
+2. **Install Node.js Dependencies**
 
-   Navegue até a pasta raiz do projeto e execute:
+   Navigate to the project's `root` directory and run:
 
    ```bash
    npm install
    ```
 
-   Repita o mesmo procedimento dentro da pasta `client`
+   Repeat the same procedure in the `client` directory:
 
    ```bash
    cd client
    npm install
    ```
 
-3. **Prepare o Ambiente Docker**
+3. **Prepare the Docker Environment**
 
-   Crie e configure os arquivos necessários:
+   Create the requiments .txt files
 
    ```bash
    npm run compile
    ```
 
-   \*Obs¹: Lembre-se antes de instalar o módulo pip-tools
+   \*Note: Make sure you have installed pip-tools first:
 
    ```bash
    pip install pip-tools
    ```
 
-4. **Certifique-se de que você tenha um perfil AWS configurado**
+4. **Ensure You Have an AWS Profile Configured**
 
-   Como esse projeto Serverless utiliza o provedor AWS, é necessário ter uma conta e ter configurado suas credenciais. Utilize o alias `sls-bridge` para seu perfil, que pode ser alterado no seguinte diretório: ~/.aws/config
-   \*Obs¹: Caso o alias seja diferente de `sls-bridge`, a variável `AWS_PROFILE` deve ser alterada dentro de ./scripts/dev-utils.sh
+   Since this Serverless project uses the AWS provider, you need an account with configured credentials. Use the alias `sls-bridge` for your profile, which can be modified in `~/.aws/config`. If your alias is different from sls-bridge, update the `AWS_PROFILE` variable in `./scripts/dev-utils.sh`.
 
-5. **Inicie os Serviços**
+5. **Start the Services**
 
-   Para iniciar o ambiente de desenvolvimento, execute:
+   To start the development environment run:
 
    ```bash
    npm run start
    ```
 
-   Isso iniciará os containers Docker para LocalStack, Django e PostgreSQL.
+   It will start the Docker containers for LocalStack, Django, and PostgreSQL.
 
-## Desenvolvimento Back-End
+## Back-End Development
 
-Para trabalhar no back-end, navegue até a pasta `api`. Lá você encontrará a pasta `local` com o arquivo `local_env.json`. Qualquer nova variável de ambiente de desenvolvimento deve ser adicionada no mesmo JSON. Para o deploy no `localstack` a mesma propriedade deve ser incluída em `environment` do arquivo `serverless.functions`. O comando
+To work on the back-end, navigate to the api directory. There you will find the `local` folder with the `local_env.json` file. Any new development environment variables should be added to this JSON file. For deployment to LocalStack, the same property should be included in the environment section of the `serverless.functions.yml` file. The command:
 
 ```bash
 npm run start
 ```
 
-irá adicionar essas variáveis tanto no container da aplicação Django quanto na lambda wsgi dentro do `localstack`
+will add these variables both to the Django application container and the lambda wsgi within LocalStack.
 
-## Desenvolvimento Front-End
+## Front-End Development
 
-Para trabalhar no front-end, navegue até a pasta `client` e siga as instruções no `package.json` para iniciar o servidor de desenvolvimento.
+To work on the front-end, navigate to the `client` directory and follow the instructions in the `package.json` to start the development server:
 
 ```bash
 cd client
 npm run dev
 ```
 
-Qualquer variável de desenvolvimento do projeto deve ser adicionada dentro do arquivo `.env.development.local` dentro da pasta `local`, e precisa ter o prefixo `VITE_`.
+Any project development variables should be added to the `.env.development.local` file in the local directory and must be prefixed with `VITE_`.
 
-## Deploy do Back-End
+## Back-End Deployment
 
-Ambientes para deploy <-s>
+Deployment environments:
 
 - **staging** (stg)
 - **produção** (prd)
 
-1.  **Adicione as variáveis de ambiente**
+1.  **Add Environment Variables in AWS**
 
-    todas as variáveis de ambiente dentro de `api/local/local_env.json` precisarão ser adicionadas do `repositório de parâmetros` da aws com seus respectivos valores atualizados. O nome deve seguir o padrão
+    All environment variables in `api/local/local_env.json` need to be added to the `AWS Systems Manager Parameter Store` with their updated values. The name should follow the pattern:
 
     ```
-    <nome_do_projeto>-<stage>-<nome_da_variavel>
+    <project_name>-<stage>-<variable_name>
     ```
 
-    exemplo:
+    example:
 
     ```
     sls-bridge-stg-POSTGRES_PASSWORD
     ```
 
-2.  **Configure o deploy**
+2.  **Configure Serverless Deployment**
 
-    as configurações específicas para o deploy do Serverless podem ser ajustadas no arquivo deploy-config.json. Caso esteja satisfeito com os valores padrão, não é necessário fazer alterações neste arquivo.
+    Specific deployment configurations for Serverless can be adjusted in the `deploy-config.json` file. If you are satisfied with the default values, no changes are necessary.
 
-3.  **Faça o deploy**
+3.  **Deploy**
 
     ```bash
     npx sls deploy -s <stage> --aws-profile <profile> --verbose
     ```
 
-4.  **Faça a migration**
+4.  **Run Migrations**
 
     ```bash
     npx sls wsgi manage --command "migrate" -s <stage> --aws-profile <profile> --verbose
     ```
 
-5.  **Colete os arquivos estáticos**
+5.  **Collect Static Files**
 
     ```bash
     npx sls wsgi manage --command "collectstatic --noinput" -s <stage> --aws-profile <profile> --verbose
     ```
 
-6.  **Teste a aplicação**
+## Front-End Deployment
 
-    Agora a aplicação pode ser testada acessando:
+1.  **Add Environment Variables**
 
-    ```
-    https://<api-id>.execute-api.<region>.amazonaws.com/<stage>/admin/
-    ```
+    All environment variables in `.env.example` need to be added to the `.env.staging.local` and/or `.env.production.local` files with their updated values.
 
-## Deploy do Front-End
+2.  **Create a Build File**
 
-Ambientes para deploy <-s>
-
-- **staging** (stg)
-- **produção** (prd)
-
-1.  **Adicione as variáveis de ambiente**
-
-    todas as variáveis de ambiente dentro de `.env.development.local` precisarão ser adicionadas nos arquivos `.env.staging.local` e `.env.production.local` com seus respectivos valores atualizados
-
-2.  **Crie um arquivo de build**
-
-    dentro da pasta `client` rode o comando
+    In the `client` directory, run the command:
 
     ```bash
     npm run build:<stage>
     ```
 
-3.  **Faça o deploy**
+3.  **Deploy**
 
-    na raiz do projeto (onde está o arquivo .serverless.yml) rode o comando
+    In the project root directory (where the .serverless.yml file is located), run the command:
 
     ```bash
     npx sls s3deploy -s <stage> --aws-profile <profile> --verbose
     ```
 
-4.  **Teste a SPA**
+4.  **Test the SPA**
 
-    Agora a aplicação pode ser testada acessando:
+    You can now test the application by accessing:
 
     ```
     http://dist-<stage>.s3-website-<region>.amazonaws.com/
