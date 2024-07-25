@@ -52,7 +52,8 @@ elif [ $1 == "migrations" ]; then
     npx sls wsgi manage --command "showmigrations" -s local --aws-profile $AWS_PROFILE
 elif [ $1 == "compile" ]; then
     pip-compile "${REQUIREMENTSIN_PATH}/local-requirements.in" --upgrade --strip-extras --no-annotate --generate-hashes --pip-args "--retries 3 --timeout 30" --allow-unsafe --output-file="${REQUIREMENTSIN_PATH}/compiled/local-requirements.txt"
+    pip-compile "${REQUIREMENTSIN_PATH}/docker-requirements.in" --upgrade --strip-extras --no-annotate --generate-hashes --pip-args "--retries 3 --timeout 30" --allow-unsafe --output-file="${REQUIREMENTSIN_PATH}/compiled/docker-requirements.txt"
     pip-compile "${REQUIREMENTSIN_PATH}/stg-requirements.in" --upgrade --strip-extras --no-annotate --generate-hashes --pip-args "--retries 3 --timeout 30" --allow-unsafe --output-file="${REQUIREMENTSIN_PATH}/compiled/stg-requirements.txt"
     pip-compile "${REQUIREMENTSIN_PATH}/prd-requirements.in" --upgrade --strip-extras --no-annotate --generate-hashes --pip-args "--retries 3 --timeout 30" --allow-unsafe --output-file="${REQUIREMENTSIN_PATH}/compiled/prd-requirements.txt"
-    pip-sync "${REQUIREMENTSIN_PATH}/compiled/local-requirements.txt"
+    pip-sync "${REQUIREMENTSIN_PATH}/compiled/docker-requirements.txt"
 fi 

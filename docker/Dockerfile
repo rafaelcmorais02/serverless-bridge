@@ -6,7 +6,7 @@ WORKDIR /usr/src
 
 COPY ./api/config/requirements/compiled/ ../requirements/compiled/
 RUN pip install --disable-pip-version-check --no-cache-dir --no-compile \
-    -r ../requirements/compiled/local-requirements.txt
+    -r ../requirements/compiled/docker-requirements.txt
 
 COPY ./docker/backend-entrypoint.sh /
 RUN chmod +x /backend-entrypoint.sh
