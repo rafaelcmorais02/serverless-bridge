@@ -93,6 +93,12 @@ custom:
   pythonRequirements:
     fileName: ./api/config/requirements/compiled/${self:custom.deployConfig.stages.${opt:stage, 'local'}.requirements}
     layer: ${self:custom.deployConfig.stages.${opt:stage, 'local'}.includeLayers}
+    useStaticCache: false
+    useDownloadCache: false
+    pipCmdExtraArgs:
+      - "--platform manylinux2014_x86_64"
+      - "--only-binary=:all:"
+    slim: true
 
 provider:
   name: aws
