@@ -2,6 +2,17 @@ FROM python:3.11-alpine as api
 
 ENV PYTHONUNBUFFERED 1
 
+RUN apk add --no-cache \
+    build-base \
+    postgresql-dev \
+    libffi-dev \
+    jpeg-dev \
+    zlib-dev \
+    ca-certificates \
+    && apk add --no-cache --virtual .build-deps gcc musl-dev linux-headers \
+    && pip install --upgrade pip \
+    && apk del .build-deps
+
 WORKDIR /usr/src
 
 COPY ./api/config/requirements/compiled/ ../requirements/compiled/

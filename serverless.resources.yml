@@ -30,6 +30,7 @@ resources:
         BucketName: ${self:custom.buckets.dist.name}
         WebsiteConfiguration:
           IndexDocument: index.html
+          ErrorDocument: index.html
         OwnershipControls:
           Rules:
             - ObjectOwnership: ObjectWriter
